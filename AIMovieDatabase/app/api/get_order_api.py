@@ -4,9 +4,12 @@
 import datetime
 import json
 
+import pymongo
 from flask import Blueprint, request, make_response
 
-from manager import db
+
+client = pymongo.MongoClient('mongodb://localhost:27017/')
+db = client['AIMovie']
 
 get_order = Blueprint('get_order', __name__)
 
@@ -16,6 +19,9 @@ def get_user_existence():
     """
     判断order表中是否存在user_id的订单信息
     :return:
+    |respCode|String|必填|返回码|
+    |respMsg|String|必填|返回信息|
+    |data|map|map|state，‘1’表示有，‘0’表示无|
     """
     if not request.json.get('user_id'):
         return make_response(json.dumps({"respCode": "9501", "respMsg": "参数错误"}, ensure_ascii=False))
@@ -34,8 +40,12 @@ def get_user_existence():
 @get_order.route('/getOrderByEntity.json', methods=['POST'])
 def get_order_by_entity():
     """
-    get{"user_id":userId, "timeRange":timeRange}
-    :return: order
+    根据实体查询user_id的订单记录
+    影院实体为模糊查询
+    :return:
+    |respCode|String|必填|返回码|
+    |respMsg|String|必填|返回信息|
+    |data|list|必填|记录列表
     """
     user_id = request.json.get('user_id')
     cinema = request.json.get('cinema')
@@ -44,15 +54,16 @@ def get_order_by_entity():
         return make_response(json.dumps({"respCode": "9501", "respMsg": "参数错误"}, ensure_ascii=False))
     # noinspection PyBroadException
     try:
-        begin_date = time.split('-')[0]
-        end_date = time.split('-')[1]
-
-        if cinema != "" and begin_date != "" and end_date != "":
-            my_query = {"user_id": user_id, "cinema_name": cinema,
+        if cinema != "" and time != "":
+            begin_date = time.split('-')[0]
+            end_date = time.split('-')[1]
+            my_query = {"user_id": user_id, "cinema_name": {"$regex": cinema},
                         "watching_time": {"$lt": end_date, "$gt": begin_date}}
         elif cinema != "":
-            my_query = {"user_id": user_id, "cinema_name": cinema}
+            my_query = {"user_id": user_id, "cinema_name": {"$regex": cinema}}
         else:
+            begin_date = time.split('-')[0]
+            end_date = time.split('-')[1]
             my_query = {"user_id": user_id, "watching_time": {"$lt": end_date, "$gt": begin_date}}
 
         collection = db['order']
@@ -74,8 +85,11 @@ def get_order_by_entity():
 @get_order.route('/getOrderAfter.json', methods=['POST'])
 def get_order_after():
     """
-    get{"userId":userId}
+    查询当前时间之后的用户订单记录
     :return:
+    |respCode|String|必填|返回码|
+    |respMsg|String|必填|返回信息|
+    |data|list|必填|记录列表
     """
     user_id = request.json.get('user_id')
     if not user_id:
@@ -108,8 +122,12 @@ def get_order_after():
 @get_order.route('/getOrderBefore.json', methods=['POST'])
 def get_order_before():
     """
-    get{"userId":userId}
+    查询当前时间之前的用户订单记录
+    默认为3条
     :return:
+    |respCode|String|必填|返回码|
+    |respMsg|String|必填|返回信息|
+    |data|list|必填|记录列表
     """
     user_id = request.json.get('user_id')
     if not user_id:
@@ -123,7 +141,7 @@ def get_order_before():
         collection = db['order']
         # 查询条件未电影播放时间在当前时间之前的
         my_query = {"user_id": user_id, "watching_time": {"$lt": time}}
-        result = list(collection.find(my_query))
+        result = list(collection.find(my_query).limit(3))
         result = [
             {
                 'cinema_name': result['cinema_name'],

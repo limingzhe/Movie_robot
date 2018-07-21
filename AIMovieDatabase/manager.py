@@ -1,12 +1,7 @@
 """
 开发环境调试使用，启动脚本
 """
-import pymongo
 from flask import render_template
-
-client = pymongo.MongoClient('mongodb://localhost:27017/')
-db = client['AIMovie']
-
 from app import create_app
 
 app = create_app()
