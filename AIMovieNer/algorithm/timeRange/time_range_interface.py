@@ -43,7 +43,7 @@ def extract_month(input_sentence):
     if re.search('上个月|上月', input_sentence):
         num = str(now.month - 1)
         return '0' + num if int(num) < 10 else num
-    if re.search('这个月|这月', input_sentence):
+    if re.search('这个月|这月|本月', input_sentence):
         num = str(now.month)
         return '0' + num if int(num) < 10 else num
     if re.search('下个月|下月', input_sentence):
