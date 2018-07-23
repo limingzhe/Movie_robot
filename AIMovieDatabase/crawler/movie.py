@@ -9,7 +9,7 @@ headers = {'User-Agent':
 
 
 def crawl_movies():
-    origin_url = 'http://maoyan.com/films?showType=1&sortId=1'
+    origin_url = 'http://maoyan.com'
     movies_info = []
     r = requests.get(origin_url, headers=headers)
     content = r.text
@@ -17,10 +17,10 @@ def crawl_movies():
 
     # 所有在映电影的url
     movies_url = []
-    movie_items = soup.find_all(class_='movie-item')
+    movie_list = soup.find(class_='movie-list')
+    movie_items = movie_list.find_all(class_='movie-item')
     for movie_item in movie_items:
-        if movie_item.find(class_='channel-action channel-action-sale'):  # 筛选出在映电影
-            movies_url.append(movie_item.find('a')['href'])
+        movies_url.append(movie_item.find('a')['href'])
 
     url_prefix = 'http://maoyan.com'
     for movie_url in movies_url:
@@ -43,9 +43,12 @@ def crawl_movies():
         movies_info.append({
             "name": name,
             "en_name": en_name,
-            "type": type,
-            "area": area,
-            "release": release
+            "type": type.split(','),
+            "area": area.replace('\n', '').replace(' ', '').split('/')[0],
+            "duration": area.replace('\n', '').replace(' ', '').split('/')[1],
+            "release": release[:10]
         })
     return movies_info
-# print(movies_info)
+
+
+# print(crawl_movies())

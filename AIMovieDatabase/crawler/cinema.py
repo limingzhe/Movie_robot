@@ -28,7 +28,7 @@ def crawl_cinemas():
         # 影院地址
         cinema_address = soup.find(class_='address text-ellipsis').get_text()
         # 影院电话
-        cinema_phone = soup.find(class_='telphone').get_text()
+        cinema_phone = soup.find(class_='telphone').get_text()[3:]
 
         # 上映的电影信息
         movies = []
@@ -80,4 +80,6 @@ def crawl_cinemas():
             "movies": movies
         })
     return cinemas_info
-# print(cinemas_info)
+
+
+print(crawl_cinemas())

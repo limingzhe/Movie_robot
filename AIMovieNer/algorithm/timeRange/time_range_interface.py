@@ -1,11 +1,11 @@
 """
     抽取时间范围的接口文件
 """
+import calendar
 import re
 from datetime import datetime, timedelta
-from algorithm.utils.utils import pretreatment
-import calendar
 
+from algorithm.utils.utils import pretreatment
 
 
 def extract_year(input_sentence):
@@ -94,8 +94,8 @@ def extract_week(input_sentence):
     """
     now = datetime.now()
     if re.search('上周', input_sentence):
-        start = str(now - timedelta(days=now.weekday()+7))
-        end = str(now - timedelta(days=now.weekday()+1))
+        start = str(now - timedelta(days=now.weekday() + 7))
+        end = str(now - timedelta(days=now.weekday() + 1))
         return start[0:4] + start[5:7] + start[8:10] + '0000' + '-' + end[0:4] + end[5:7] + end[8:10] + '2359'
     if re.search('本周|这周', input_sentence):
         # 本周第一天和最后一天
