@@ -5,7 +5,7 @@ import re
 from datetime import datetime, timedelta
 from algorithm.utils.utils import pretreatment
 import calendar
-now = datetime.now()
+
 
 
 def extract_year(input_sentence):
@@ -14,6 +14,7 @@ def extract_year(input_sentence):
     :param input_sentence:
     :return:
     """
+    now = datetime.now()
     year = re.search('\d{2}年', input_sentence)
     if year:
         num = year.group(0)[0:2]
@@ -33,6 +34,7 @@ def extract_month(input_sentence):
     :param input_sentence:
     :return:
     """
+    now = datetime.now()
     month = re.search('\d{1,2}月', input_sentence)
     if month:
         num = month.group(0)[:-1]
@@ -58,6 +60,7 @@ def extract_day(input_sentence):
     :param input_sentence:
     :return:
     """
+    now = datetime.now()
     day = re.search('\d{1,2}(日|号)', input_sentence)
     if day:
         num = day.group(0)[:-1]
@@ -89,6 +92,7 @@ def extract_week(input_sentence):
     :param input_sentence:
     :return:
     """
+    now = datetime.now()
     if re.search('上周', input_sentence):
         start = str(now - timedelta(days=now.weekday()+7))
         end = str(now - timedelta(days=now.weekday()+1))
@@ -106,6 +110,7 @@ def extract_week(input_sentence):
 
 
 def extract_time_range(input_sentence):
+    now = datetime.now()
     input_sentence = pretreatment(input_sentence)
     if extract_week(input_sentence):
         return extract_week(input_sentence)
@@ -146,4 +151,4 @@ def extract_time_range(input_sentence):
 
 
 if __name__ == '__main__':
-    print(extract_time_range('以前'))
+    print(extract_time_range('本月'))
